@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dragon Tiger Predictor UltraAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; text-align: center; background: #f2f2f2; }
+        input, button { padding: 10px; margin: 10px; font-size: 16px; }
+        #prediction { margin-top: 20px; font-size: 24px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Dragon Tiger Predictor - UltraAI</h2>
+    <input type="text" id="history" placeholder="Enter full result history (D/T/Tie)">
+    <button onclick="predict()">Predict Outcome</button>
+    <div id="prediction">Prediction will appear here</div>
+
+    <script>
+        function predict() {
+            const input = document.getElementById("history").value.trim().toUpperCase();
+            const history = input.split(/[^A-Z]+/).filter(r => ["D", "T", "TIE"].includes(r));
+            if (history.length < 3) {
+                document.getElementById("prediction").textContent = "Enter more results (at least 3)";
+                return;
+            }
+
+            // Count occurrences
+            let count = { D: 0, T: 0, TIE: 0 };
+            history.forEach(r => count[r]++);
+
+            // Ratios
+            const total = history.length;
+            const ratio = {
+                D: count.D / total,
+                T: count.T / total,
+                TIE: count.TIE / total
+            };
+
+            // Prediction base: 45% D, 45% T, 10% TIE
+            const rand = Math.random();
+            let prediction = "TIE";
+            if (rand < 0.45) {
+                prediction = (ratio.D < ratio.T) ? "Dragon" : "Tiger";
+            } else if (rand < 0.9) {
+                prediction = (ratio.T < ratio.D) ? "Tiger" : "Dragon";
+            }
+
+            // Pattern support: favor last outcome flip
+            const last = history[history.length - 1];
+            const secondLast = history[history.length - 2];
+            if (last !== secondLast && (last === "D" || last === "T")) {
+                prediction = (last === "D") ? "Tiger" : "Dragon";
+            }
+
+            document.getElementById("prediction").textContent = "Predicted: " + prediction;
+        }
+    </script>
+</body>
+</html>
